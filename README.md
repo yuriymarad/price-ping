@@ -54,7 +54,7 @@ Steps:
    sail artisan db:seed
    ```
 
-   This creates a verified user with email `admin@example.com` and password `1212qwqw` (defined in `database/seeders/DatabaseSeeder.php` — change it before deploying anywhere public).
+   This creates a verified user with email `admin@example.com` and password `1212qwqw` (defined in `database/seeders/DatabaseSeeder.php`).
 9. Seed an admin user so you can sign in:
     Visit http://localhost/dashboard
 10. Optional dashboards: **Horizon** at `/horizon` for queue health, **Pulse** at `/pulse` for app metrics.
@@ -167,6 +167,8 @@ The `app/` tree is organised by responsibility, not by Laravel-default folder. E
 
 - **`Values/`** — small value objects for domain concepts (`TickerSymbol`, `Price`, `PercentChange`). Used when the value carries meaning beyond its raw type.
 - **`Data/`** — DTOs that ferry data between layers (`TickerData`, `TriggeredAlert`, `ChartPoint`).
+- **`Enums/`** — type-safe enumerations for closed sets of values (`AlertRuleType`, `MarketStatus`, `TickerStatus`, `ChartRange`, `ThresholdDirection`, `PercentDirection`).
+- **`Casts/`** — custom Eloquent attribute casts that convert raw DB columns into richer types (e.g. `PriceBaselineCast` for the alert baseline snapshot).
 - **`Models/`** — Eloquent models, kept thin (mostly scopes and accessors).
 - **`Core/`** — important, reusable, or non-trivial domain logic (alert-rule evaluation, digest builders). The "expensive" layer — code earns its place here only when it's load-bearing.
 - **`Actions/`** — use-case orchestration; one class per user-facing operation, coordinating Core + Models + Integrations.
@@ -174,3 +176,5 @@ The `app/` tree is organised by responsibility, not by Laravel-default folder. E
 - **`Contracts/`** — interfaces for DI seams (`MarketDataProvider`, `NotificationSender`, …).
 - **`Jobs/` + `Events/` + `Listeners/`** — the async pipeline: refresh prices → broadcast → check rules → fire alerts. Listeners stay one-liners; real work is delegated to Core.
 - **`Http/`** — controllers and form requests only; no business logic.
+- **`Mcp/`** — Laravel MCP server (`TickerServer`) and its tools (`ListTickersTool`, `GetTickerTool`, `ProposeAlertRulesTool`); see the [MCP section](#-mcp--talk-to-your-portfolio-from-claude) above.
+- **`Providers/`** — service container wiring: `AppServiceProvider` binds the `Contracts/` interfaces to their `Integrations/` implementations, plus `FortifyServiceProvider` and `HorizonServiceProvider`.
