@@ -1,6 +1,6 @@
-# Price Ping
+# Price Ping – stock price monitoring
 
-A self-hosted stock price monitor. Create smart alert rules, get Telegram pings when they fire, and let your AI agent review prices and market context via MCP. Powered by free Yahoo Finance data, with live updates streaming to a dashboard.
+Monitor your favorite tickers, set price alerts rules, get Telegram pings when they fire, and let your AI agent review prices and market context via MCP. Powered by free Yahoo Finance data, with live dashboard.
 
 ![Price Ping dashboard](public/dasboard_1.png)
 
