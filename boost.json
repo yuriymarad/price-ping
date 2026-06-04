@@ -16,6 +16,8 @@
         "pulse-development",
         "wayfinder-development",
         "inertia-vue-development",
+        "echo-vue-development",
+        "echo-development",
         "tailwindcss-development"
     ]
 }
