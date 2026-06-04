@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\AlertRules\ApplyAllAlProposalsAction;
+use App\Actions\AlertRules\ApplyAllAiProposalsAction;
 use App\Models\AlertRuleProposal;
 use App\Models\Ticker;
 use Illuminate\Http\RedirectResponse;
@@ -10,7 +10,7 @@ use Inertia\Inertia;
 
 class AlertRuleProposalController extends Controller
 {
-    public function applyAll(Ticker $ticker, ApplyAllAlProposalsAction $action): RedirectResponse
+    public function applyAll(Ticker $ticker, ApplyAllAiProposalsAction $action): RedirectResponse
     {
         $action->handle($ticker);
 

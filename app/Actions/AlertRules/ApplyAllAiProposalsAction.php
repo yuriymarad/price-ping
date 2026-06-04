@@ -8,7 +8,7 @@ use App\Models\AlertRuleProposal;
 use App\Models\Ticker;
 use Illuminate\Support\Facades\DB;
 
-class ApplyAllAlProposalsAction
+class ApplyAllAiProposalsAction
 {
     public function handle(Ticker $ticker): void
     {
