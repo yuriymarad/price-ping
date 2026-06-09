@@ -9,13 +9,28 @@ metadata:
 
 A practical backend architecture for Laravel projects that keeps code split by clear responsibilities, helping the codebase stay maintainable as it grows and easier to test.
 
-This approach does not try to force pure Clean Architecture, strict DDD, or other abstractions into Laravel. It simply extends the standard way of building Laravel applications by adding a few practical layers and rules for clearer responsibility separation.
+This approach does not try to force pure Clean Architecture, strict DDD, or other abstractions into Laravel. It simply extends the standard way of building Laravel applications by adding a few practical architectural components and rules that make layer boundaries and responsibilities clearer.
 
 ## Architecture Overview
 
-We split our application architecture into the following layers:
+This section describes the main components of our application architecture:
 
-**Http / Console / MCP**
+- Http / Console / MCP
+- Actions
+- Core
+- Contracts
+- Integrations
+- Models
+- Values
+- Data
+- Enums
+- Events / Listeners
+- Jobs
+- Casts
+- Providers
+- Exceptions
+
+**1. Http / Console / MCP**
 
 Question: How does the outside world enter the system?
 
@@ -44,7 +59,7 @@ class PlaceOrderController
 }
 ```
 
-**Actions**
+**2. Actions**
 
 Question: What should the system do in this use case?
 
@@ -81,7 +96,7 @@ class PlaceOrderAction
 }
 ```
 
-**Core**
+**3. Core**
 
 Question: How does the internal product logic work?
 
@@ -127,7 +142,7 @@ class CartTotalCalculator
 }
 ```
 
-**Contracts**
+**4. Contracts**
 
 Question: What does the system need to be able to do, without knowing who does it?
 
@@ -146,7 +161,7 @@ interface PaymentGateway
 }
 ```
 
-**Integrations**
+**5. Integrations**
 
 Question: How do we talk to external systems or technical infrastructure?
 
@@ -172,7 +187,7 @@ final class StripePaymentGateway implements PaymentGateway
 }
 ```
 
-**Models**
+**6. Models**
 
 Question: What persisted entities exist and how are they stored?
 
@@ -202,7 +217,7 @@ class Order extends Model
 }
 ```
 
-**Values**
+**7. Values**
 
 Question: Is this primitive just a technical value, or does it represent a meaningful domain concept?
 
@@ -230,7 +245,7 @@ final class Money
 }
 ```
 
-**Data**
+**8. Data**
 
 Question: What data shape is passed between parts of the system?
 
@@ -256,7 +271,7 @@ final class PlaceOrderData
 }
 ```
 
-**Enums**
+**9. Enums**
 
 Question: What fixed set of states or types exists in the system?
 
@@ -276,7 +291,7 @@ enum OrderStatus: string
 }
 ```
 
-**Events / Listeners**
+**10. Events / Listeners**
 
 Question: What happened, and what should react to it?
 
@@ -312,7 +327,7 @@ class SendOrderConfirmation
 }
 ```
 
-**Jobs**
+**11. Jobs**
 
 Question: What work needs controlled background execution?
 
@@ -341,7 +356,7 @@ class GenerateInvoicePdfJob implements ShouldQueue
 }
 ```
 
-**Casts**
+**12. Casts**
 
 Question: How is a database value converted into an object and back?
 
@@ -369,7 +384,7 @@ class MoneyCast implements CastsAttributes
 }
 ```
 
-**Providers**
+**13. Providers**
 
 Question: How is the application wired together?
 
@@ -390,9 +405,9 @@ class AppServiceProvider extends ServiceProvider
 }
 ```
 
-**Exceptions**
+**14. Exceptions**
 
-Use custom Exceptions when a failure has product meaning or needs to be handled differently by another layer.
+Use custom Exceptions when a failure has product meaning or needs to be handled differently.
 
 Path: `app/Exceptions/`
 
