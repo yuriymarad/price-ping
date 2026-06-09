@@ -1,5 +1,5 @@
 import { usePage } from '@inertiajs/vue3';
-import { useEchoPublic } from '@laravel/echo-vue';
+import { echo } from '@laravel/echo-vue';
 import { Lock, Moon, Sun, Sunrise } from 'lucide-vue-next';
 import { computed, ref, type Component, type ComputedRef } from 'vue';
 import type { MarketStatus } from '@/types';
@@ -44,25 +44,28 @@ const themes: Record<MarketStatus, MarketTheme> = {
 };
 
 const liveStatus = ref<MarketStatus | null>(null);
-let seeded = false;
+let subscribed = false;
+
+function ensureSubscribed(): void {
+    if (subscribed || import.meta.env.SSR) {
+        return;
+    }
+    subscribed = true;
+    echo()
+        .channel('markets')
+        .listen('.market.status.changed', (payload: { status: MarketStatus }) => {
+            liveStatus.value = payload.status;
+        });
+}
 
 export function useMarketStatus(): ComputedRef<MarketTheme | null> {
     const page = usePage();
-    
-    if (!seeded) {
-        seeded = true;
+
+    if (import.meta.env.SSR || liveStatus.value === null) {
         liveStatus.value = (page.props.marketStatus as MarketStatus | undefined) ?? null;
     }
 
-    if (!import.meta.env.SSR) {
-        useEchoPublic<{ status: MarketStatus }>(
-            'markets',
-            '.market.status.changed',
-            (payload) => {
-                liveStatus.value = payload.status;
-            },
-        );
-    }
+    ensureSubscribed();
 
     return computed(() => (liveStatus.value ? themes[liveStatus.value] : null));
 }

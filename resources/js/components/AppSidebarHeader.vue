@@ -25,7 +25,7 @@ const theme = useMarketStatus();
             :class="theme.pillClass"
             class="absolute top-1/2 left-1/2 inline-flex -translate-x-1/2 -translate-y-1/2 items-center gap-1.5 rounded-full px-3 py-2 text-xs font-medium"
         >
-            <component :is="theme.icon" class="size-3.5" />
+            <component :is="theme.icon" :key="theme.label" class="size-3.5" />
             {{ theme.label }}
         </span>
         <div
