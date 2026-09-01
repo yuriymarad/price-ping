@@ -27,11 +27,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // TODO - use extend() here
         $this->app->bind(MarketDataProvider::class, function ($app) {
             return new CachedMarketDataProvider(
                 $app->make(YahooMarketDataProvider::class)
             );
         });
+
         $this->app->bind(NotificationSender::class, TelegramNotificationSender::class);
     }
 
@@ -42,6 +44,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
 
+        // TODO - check if needed as it should be autoloaded
         Event::listen(PortfolioImported::class, RefreshPricesAfterPortfolioImported::class);
         Event::listen(TickerPricesRefreshed::class, CheckAlertRulesAfterPricesRefreshed::class);
         Event::listen(AlertsTriggered::class, SendTriggeredAlerts::class);

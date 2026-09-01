@@ -98,9 +98,9 @@ class PlaceOrderAction
 
 **3. Core**
 
-Question: How does the internal product logic work?
+Question: How does the product’s core logic work?
 
-Reusable internal product mechanics: business rules, calculations, evaluators, parsers, builders, selectors, decision logic, and domain-specific algorithms.
+Core contains domain services for business logic that does not naturally belong to a single Model.
 
 Folder naming:
 Core folders should be named by product area or internal mechanism, not by generic technical type.
@@ -116,28 +116,28 @@ Core/Helpers
 Core/Processors
 
 Rules:
-- Core class should explain a reusable product mechanism, not a specific use case
-- if the class answers “what should the system do now?”, it is probably an Action
-- if it answers “how does this product mechanism work?”, it belongs to Core
-- Core should not know about HTTP requests, console commands, MCP tools, or response formats
-- Core should not depend on vendor-specific integrations directly; use Contracts when external capabilities are needed
+- Put domain logic that does not belong to a single Model in Core.
+- Keep logic related to a Model’s own state and behavior in the Model.
+- Keep use-case orchestration and side effects in Actions.
+- Core should not depend on HTTP, console, MCP, or response formats.
+- Use Contracts when Core needs external services or integrations.
 
 Path: `app/Core/{ProductArea}/`
 
 Example:
 ```php
-// app/Core/Pricing/CartTotalCalculator.php
-class CartTotalCalculator
-{
-    public function calculate(array $items, ?Discount $discount = null): Money
-    {
-        $subtotal = array_reduce(
-            $items,
-            fn (Money $sum, CartItem $item) => $sum->add($item->lineTotal()),
-            Money::zero('USD'),
-        );
+// app/Core/Shipping/FreeShippingRule.php
 
-        return $discount?->applyTo($subtotal) ?? $subtotal;
+final readonly class FreeShippingRule
+{
+    public function __construct(
+        private Money $minimumOrderTotal,
+    ) {}
+
+    public function appliesTo(Customer $customer, Order $order): bool
+    {
+        return $customer->isPremium()
+            || $order->total()->isAtLeast($this->minimumOrderTotal);
     }
 }
 ```
@@ -189,15 +189,16 @@ final class StripePaymentGateway implements PaymentGateway
 
 **6. Models**
 
-Question: What persisted entities exist and how are they stored?
+Question: What persisted entities exist, how are they stored, and how do they behave?
 
 Responsibility:
-Eloquent persistence models.
-Models describe database mapping, relationships, casts, scopes, accessors/mutators, and simple state-related behavior.
+Eloquent models represent persisted entities. They define database mapping, relationships, casts, scopes, accessors/mutators, and business logic related to their own state and behavior.
 
 Rules:
-- Models should be responsible only for persisted state and state-related behavior
-- Do not put business logic, use-case orchestration, or product mechanics in Models
+- Keep logic related to a Model’s own state and behavior in the Model.
+- Keep relationships, casts, scopes, and state transitions in Models.
+- Use Core when logic does not naturally belong to a single Model.
+- Keep a balance between anemic and rich domain models.
 
 Path: `app/Models/`
 
@@ -213,6 +214,16 @@ class Order extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function cancel(): void
+    {
+        if (!$this->status->canBeCancelled()) {
+            throw new OrderCannotBeCancelled($this->status);
+        }
+
+        $this->status = OrderStatus::Cancelled;
+        $this->cancelled_at = now();
     }
 }
 ```

@@ -23,11 +23,7 @@ class RefreshTickerPriceAction
                 continue;
             }
 
-            $ticker->update([
-                'last_price' => $tickerData->regularMarketPrice,
-                'last_fetched_at' => now(),
-                'currency' => $tickerData->currency ?? $ticker->currency,
-            ]);
+            $ticker->recordMarketPrice($tickerData);
 
             $refreshed[] = [
                 'id' => $ticker->id,

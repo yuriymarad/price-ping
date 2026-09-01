@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use App\Casts\PriceBaselineCast;
+use App\Data\AlertRuleData;
 use App\Enums\AlertRuleType;
 use App\Enums\PercentDirection;
 use App\Enums\ThresholdDirection;
+use App\Values\PriceBaseline;
 use Database\Factories\AlertRuleFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -58,6 +60,32 @@ class AlertRule extends Model
             && $this->last_alerted_at->diffInMinutes(now()) < $this->cooldown_minutes;
     }
 
+    public function baselineNeedsReset(): bool
+    {
+        return $this->baseline === null || $this->baseline->isExpired($this->period_hours);
+    }
+
+    public function resetBaseline(float $price): void
+    {
+        $this->update(['baseline' => new PriceBaseline($price, now())]);
+    }
+
+    public function moveBaselinePriceTo(float $price): void
+    {
+        $this->update(['baseline' => new PriceBaseline($price, $this->baseline->recordedAt)]);
+    }
+
+    public function applyChanges(AlertRuleData $data): void
+    {
+        $attributes = $data->toAttributes();
+
+        if ($data->periodHours !== $this->period_hours) {
+            $attributes['baseline'] = null;
+        }
+
+        $this->update($attributes);
+    }
+    
     public function recordAlert(array $extra = []): void
     {
         $updates = array_merge(['last_alerted_at' => now()], $extra);

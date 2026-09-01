@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Data\TickerData;
 use App\Enums\TickerStatus;
 use Database\Factories\TickerFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -47,6 +48,20 @@ class Ticker extends Model
     public function proposals(): HasMany
     {
         return $this->hasMany(AlertRuleProposal::class);
+    }
+
+    public function recordMarketPrice(TickerData $tickerData): void
+    {
+        $this->update([
+            'last_price' => $tickerData->regularMarketPrice,
+            'last_fetched_at' => now(),
+            'currency' => $tickerData->currency ?? $this->currency,
+        ]);
+    }
+
+    public function markSetupComplete(): void
+    {
+        $this->update(['status' => TickerStatus::SetupComplete]);
     }
 
     public function toggleHot(): void
